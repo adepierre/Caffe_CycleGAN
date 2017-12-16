@@ -1,0 +1,14 @@
+net: "generator.prototxt"
+type: "Adam"
+momentum: 0.5
+lr_policy: "fixed"
+base_lr: 0.0002
+#Uncomment these lines if you want a linear decay for the learning rate
+#base_lr: 0.0002
+#lr_policy: "poly"
+#max_iter: 213400
+#power: 1
+
+display: 250
+snapshot: 10000
+snapshot_prefix: "CycleGAN_Generator"

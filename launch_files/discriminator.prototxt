@@ -1,0 +1,291 @@
+name: "Discriminator"
+force_backward: true
+
+layer {
+	name: "Input"
+	type: "Input"
+	top: "images_input"
+	top: "labels_input"
+	input_param {
+		shape {
+			dim: 1
+			dim: 3
+			dim: 256
+			dim: 256
+		}
+		shape {
+			dim: 1
+			dim: 1
+			dim: 32
+			dim: 32
+		}
+	}
+}
+
+layer {
+	name: "Discriminator_Conv1"
+	type: "Convolution"
+	bottom: "images_input"
+	top: "Discriminator_Conv1"
+	convolution_param {
+		num_output: 64
+		kernel_size: 4
+		stride: 2
+		pad: 1
+		bias_term: false
+		weight_filler {
+			type: "gaussian"
+			std: 0.02
+		}
+	}
+}
+
+#We don't use the computed mean and std at test time because
+#it's calculated from both real and fake distribution which
+#is not what we want. As we use batch of size 1, it should
+#be equivalent to instance normalization.
+layer {
+	name: "Discriminator_BN1"
+	type: "BatchNorm"
+	bottom: "Discriminator_Conv1"
+	top: "Discriminator_Conv1"
+	batch_norm_param {
+		use_global_stats: false
+	}
+}
+
+layer {
+	name: "Discriminator_Scale1"
+	type: "Scale"
+	bottom: "Discriminator_Conv1"
+	top: "Discriminator_Conv1"
+	scale_param {
+		filler {
+			type: "gaussian"
+			std: 0.02
+			mean: 1.0
+		}
+		bias_term: true
+	}
+}
+
+layer {
+	name: "Discriminator_ReLU1"
+	type: "ReLU"
+	bottom: "Discriminator_Conv1"
+	top: "Discriminator_Conv1"
+	relu_param {
+		negative_slope: 0.2
+	}
+}
+
+layer {
+	name: "Discriminator_Conv2"
+	type: "Convolution"
+	bottom: "Discriminator_Conv1"
+	top: "Discriminator_Conv2"
+	convolution_param {
+		num_output: 128
+		kernel_size: 4
+		stride: 2
+		pad: 1
+		bias_term: false
+		weight_filler {
+			type: "gaussian"
+			std: 0.02
+		}
+	}
+}
+
+layer {
+	name: "Discriminator_BN2"
+	type: "BatchNorm"
+	bottom: "Discriminator_Conv2"
+	top: "Discriminator_Conv2"
+	batch_norm_param {
+		use_global_stats: false
+	}
+}
+
+layer {
+	name: "Discriminator_Scale2"
+	type: "Scale"
+	bottom: "Discriminator_Conv2"
+	top: "Discriminator_Conv2"
+	scale_param {
+		filler {
+			type: "gaussian"
+			std: 0.02
+			mean: 1.0
+		}
+		bias_term: true
+	}
+}
+
+layer {
+	name: "Discriminator_ReLU2"
+	type: "ReLU"
+	bottom: "Discriminator_Conv2"
+	top: "Discriminator_Conv2"
+	relu_param {
+		negative_slope: 0.2
+	}
+}
+
+layer {
+	name: "Discriminator_Conv3"
+	type: "Convolution"
+	bottom: "Discriminator_Conv2"
+	top: "Discriminator_Conv3"
+	convolution_param {
+		num_output: 256
+		kernel_size: 4
+		stride: 2
+		pad: 1
+		bias_term: false
+		weight_filler {
+			type: "gaussian"
+			std: 0.02
+		}
+	}
+}
+
+layer {
+	name: "Discriminator_BN3"
+	type: "BatchNorm"
+	bottom: "Discriminator_Conv3"
+	top: "Discriminator_Conv3"
+	batch_norm_param {
+		use_global_stats: false
+	}
+}
+
+layer {
+	name: "Discriminator_Scale3"
+	type: "Scale"
+	bottom: "Discriminator_Conv3"
+	top: "Discriminator_Conv3"
+	scale_param {
+		filler {
+			type: "gaussian"
+			std: 0.02
+			mean: 1.0
+		}
+		bias_term: true
+	}
+}
+
+layer {
+	name: "Discriminator_ReLU3"
+	type: "ReLU"
+	bottom: "Discriminator_Conv3"
+	top: "Discriminator_Conv3"
+	relu_param {
+		negative_slope: 0.2
+	}
+}
+
+layer {
+	name: "Discriminator_Conv4"
+	type: "Convolution"
+	bottom: "Discriminator_Conv3"
+	top: "Discriminator_Conv4"
+	convolution_param {
+		num_output: 512
+		kernel_size: 3
+		stride: 1
+		pad: 1
+		bias_term: false
+		weight_filler {
+			type: "gaussian"
+			std: 0.02
+		}
+	}
+}
+
+layer {
+	name: "Discriminator_BN4"
+	type: "BatchNorm"
+	bottom: "Discriminator_Conv4"
+	top: "Discriminator_Conv4"
+	batch_norm_param {
+		use_global_stats: false
+	}
+}
+
+layer {
+	name: "Discriminator_Scale4"
+	type: "Scale"
+	bottom: "Discriminator_Conv4"
+	top: "Discriminator_Conv4"
+	scale_param {
+		filler {
+			type: "gaussian"
+			std: 0.02
+			mean: 1.0
+		}
+		bias_term: true
+	}
+}
+
+layer {
+	name: "Discriminator_ReLU4"
+	type: "ReLU"
+	bottom: "Discriminator_Conv4"
+	top: "Discriminator_Conv4"
+	relu_param {
+		negative_slope: 0.2
+	}
+}
+
+layer {
+	name: "Discriminator_Conv5"
+	type: "Convolution"
+	bottom: "Discriminator_Conv4"
+	top: "Discriminator_Output"
+	convolution_param {
+		num_output: 1
+		kernel_size: 1
+		stride: 1
+		pad: 0
+		bias_term: false
+		weight_filler {
+			type: "gaussian"
+			std: 0.02
+		}
+	}
+}
+
+layer {
+	name: "Reshape_input"
+	type: "Reshape"
+	bottom: "Discriminator_Output"
+	top: "Discriminator_Reshaped_Output"
+	reshape_param {
+		shape {
+			dim: -1
+		}
+	}
+}
+
+layer {
+	name: "Reshape_labels"
+	type: "Reshape"
+	bottom: "labels_input"
+	top: "labels_reshaped_input"
+	reshape_param {
+		shape {
+			dim: -1
+		}
+	}
+}
+
+layer {
+	name: "Discriminator_loss"
+	type: "EuclideanLoss"
+	bottom: "Discriminator_Reshaped_Output"
+	bottom: "labels_reshaped_input"
+	top: "loss"
+	loss_weight: 1
+}
+
