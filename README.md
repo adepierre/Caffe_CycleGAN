@@ -35,9 +35,11 @@ A model trained with Horse2Zebra dataset is provided if you just want play with 
 The model doesn't perform very well for every images...
 
 ![Failure case 1](Assets/Failure_case.png)
+
 *He doesn't look like a horse to me*
 
 ![Failure case 2](Assets/Failure_case2.png)
+
 *Well, at least it is hidden now*
 
 ## Training
