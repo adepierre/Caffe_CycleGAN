@@ -5,6 +5,7 @@ This is my implementation of CycleGAN algorithm with Caffe for image-to-image tr
 ![Horse to zebra example](Assets/H2Z.png)
 
 *Horse to Zebra*
+
 ![Zebra to horse example](Assets/Z2H.png)
 
 *Zebra to Horse*
