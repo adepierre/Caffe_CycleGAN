@@ -29,10 +29,9 @@ Once you have correctly built and compiled the code, you should be abble to laun
 
 ## Testing
 
-To test a model, set the testing parameters in `launch_files/test.bat` as you like and then launch it.
-A model trained with Horse2Zebra dataset is provided if you just want play with it: `launch_files/CycleGAN_H2Z.caffemodel` and `launch_files/CycleGAN_Z2H.caffemodel`.
+To test a trained model, set the testing parameters in `launch_files/test.bat` as you like and then launch the script.
 
-The model doesn't perform very well for every images...
+The network doesn't perform very well for every images...
 
 ![Failure case 1](Assets/Failure_case.png)
 
