@@ -165,53 +165,38 @@ std::string ConvolutionLayer(const std::string &name, const std::string &bottom,
 	return layer_code.str();
 }
 
-std::string DeconvolutionLayer(const std::string &name, const std::string &bottom, const std::string &top, const int &n_features, const int &size, const int &stride, const int &pad, const bool train, const bool bias)
+//Deconvolution implemented as NN-upsampling + convolution to avoid checkboard artifacts
+std::string DeconvolutionLayer(const std::string &name, const std::string &bottom, const std::string &top, const int &input_features, const int &output_features, const int &size, const int &stride, const int &pad, const bool train, const bool bias)
 {
 	std::stringstream layer_code;
 
 	layer_code
 		<< "layer {" << "\n"
-		<< "\t" << "name: \"" << name << "\"" << "\n"
+		<< "\t" << "name: \"" << name + "_upsample" << "\"" << "\n"
 		<< "\t" << "type: \"Deconvolution\"" << "\n"
 		<< "\t" << "bottom: \"" << bottom << "\"" << "\n"
-		<< "\t" << "top: \"" << top << "\"" << "\n"
+		<< "\t" << "top: \"" << bottom + "_upsampled" << "\"" << "\n"
 		<< "\t" << "convolution_param {" << "\n"
-		<< "\t" << "\t" << "num_output: " << n_features << "\n"
-		<< "\t" << "\t" << "kernel_size: " << size << "\n"
-		<< "\t" << "\t" << "stride: " << stride << "\n"
-		<< "\t" << "\t" << "pad: " << pad << "\n";
-	
-	if (bias)
-	{
-		layer_code
-			<< "\t" << "\t" << "bias_term: true" << "\n";
-	}
-	else
-	{
-		layer_code
-			<< "\t" << "\t" << "bias_term: false" << "\n";
-	}
-
-	if (train)
-	{
-		layer_code
-			<< "\t" << "\t" << "weight_filler {" << "\n"
-			<< "\t" << "\t" << "\t" << "type: \"gaussian\"" << "\n"
-			<< "\t" << "\t" << "\t" << "std: 0.02" << "\n"
-			<< "\t" << "\t" << "}" << "\n";
-		if (bias)
-		{
-			layer_code
-				<< "\t" << "\t" << "bias_filler {" << "\n"
-				<< "\t" << "\t" << "\t" << "type: \"constant\"" << "\n"
-				<< "\t" << "\t" << "\t" << "value: 0" << "\n"
-				<< "\t" << "\t" << "}" << "\n";
-		}
-	}
-	layer_code
+		<< "\t" << "\t" << "num_output: " << input_features << "\n"
+		<< "\t" << "\t" << "group: " << input_features << "\n"
+		<< "\t" << "\t" << "kernel_size: " << 2 << "\n"
+		<< "\t" << "\t" << "stride: " << 2 << "\n"
+		<< "\t" << "\t" << "pad: " << 0 << "\n" 
+		<< "\t" << "\t" << "weight_filler {" << "\n"
+		<< "\t" << "\t" << "\t" << "type: \"constant\"" << "\n"
+		<< "\t" << "\t" << "\t" << "value: 1" << "\n"
+		<< "\t" << "\t" << "}" << "\n"
+		<< "\t" << "\t" << "bias_term: false" << "\n"
+		<< "\t" << "}" << "\n"
+		<< "\t" << "param {" << "\n"
+		<< "\t" << "\t" << "lr_mult: " << 0 << "\n"
+		<< "\t" << "\t" << "decay_mult: " << 0 << "\n"
 		<< "\t" << "}" << "\n"
 		<< "}" << "\n"
 		<< "\n";
+
+	layer_code
+		<< ConvolutionLayer(name + "_conv", bottom + "_upsampled", top, output_features, size, stride, pad, train, bias);
 
 	return layer_code.str();
 }
@@ -470,16 +455,15 @@ void CreateGeneratorPrototxt(const bool train, const int &batch_size, const int 
 
 	//Decoder
 	prototxt
-		<< DeconvolutionLayer("Generator_Deconv1", current_bottom, "generator_Deconv1", 2 * n_features, 4, 2, 1, train, false)
+		<< DeconvolutionLayer("Generator_Deconv1", current_bottom, "generator_Deconv1", 4 * n_features, 2 * n_features, 3, 1, 1, train, false)
 		<< BatchNormLayer("Generator_BN4", "generator_Deconv1", "generator_Deconv1")
 		<< ScaleLayer("Generator_Scale4", "generator_Deconv1", "generator_Deconv1", true, false)
 		<< ReLULayer("Generator_ReLU4", "generator_Deconv1", "generator_Deconv1", 0.2f)
-		<< DeconvolutionLayer("Generator_Deconv2", "generator_Deconv1", "generator_Deconv2", n_features, 4, 2, 1, train, false)
+		<< DeconvolutionLayer("Generator_Deconv2", "generator_Deconv1", "generator_Deconv2", 2 * n_features, n_features, 3, 1, 1, train, false)
 		<< BatchNormLayer("Generator_BN5", "generator_Deconv2", "generator_Deconv2")
 		<< ScaleLayer("Generator_Scale5", "generator_Deconv2", "generator_Deconv2", true, false)
 		<< ReLULayer("Generator_ReLU5", "generator_Deconv2", "generator_Deconv2", 0.2f)
-		<< ConvolutionLayer("Generator_Conv4", "generator_Deconv2", "generator_pre_output", 3, 7, 1, 3, train, false);
-
+		<< ConvolutionLayer("Generator_Conv4", "generator_Deconv2", "generator_pre_output", 1, 7, 1, 3, train, false);
 	prototxt
 		<< "layer {" << "\n"
 		<< "\t" << "name: \"Generator_tanH_output\"" << "\n"
