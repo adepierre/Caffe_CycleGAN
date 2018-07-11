@@ -1232,14 +1232,37 @@ layer {
 }
 
 layer {
-	name: "Generator_Deconv1"
+	name: "Generator_Deconv1_upsample"
 	type: "Deconvolution"
 	bottom: "output_resnet_8"
+	top: "output_resnet_8_upsampled"
+	convolution_param {
+		num_output: 256
+		group: 256
+		kernel_size: 2
+		stride: 2
+		pad: 0
+		weight_filler {
+			type: "constant"
+			value: 1
+		}
+		bias_term: false
+	}
+	param {
+		lr_mult: 0
+		decay_mult: 0
+	}
+}
+
+layer {
+	name: "Generator_Deconv1_conv"
+	type: "Convolution"
+	bottom: "output_resnet_8_upsampled"
 	top: "generator_Deconv1"
 	convolution_param {
 		num_output: 128
-		kernel_size: 4
-		stride: 2
+		kernel_size: 3
+		stride: 1
 		pad: 1
 		bias_term: false
 		weight_filler {
@@ -1285,14 +1308,37 @@ layer {
 }
 
 layer {
-	name: "Generator_Deconv2"
+	name: "Generator_Deconv2_upsample"
 	type: "Deconvolution"
 	bottom: "generator_Deconv1"
+	top: "generator_Deconv1_upsampled"
+	convolution_param {
+		num_output: 128
+		group: 128
+		kernel_size: 2
+		stride: 2
+		pad: 0
+		weight_filler {
+			type: "constant"
+			value: 1
+		}
+		bias_term: false
+	}
+	param {
+		lr_mult: 0
+		decay_mult: 0
+	}
+}
+
+layer {
+	name: "Generator_Deconv2_conv"
+	type: "Convolution"
+	bottom: "generator_Deconv1_upsampled"
 	top: "generator_Deconv2"
 	convolution_param {
 		num_output: 64
-		kernel_size: 4
-		stride: 2
+		kernel_size: 3
+		stride: 1
 		pad: 1
 		bias_term: false
 		weight_filler {

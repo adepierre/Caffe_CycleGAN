@@ -463,7 +463,7 @@ void CreateGeneratorPrototxt(const bool train, const int &batch_size, const int 
 		<< BatchNormLayer("Generator_BN5", "generator_Deconv2", "generator_Deconv2")
 		<< ScaleLayer("Generator_Scale5", "generator_Deconv2", "generator_Deconv2", true, false)
 		<< ReLULayer("Generator_ReLU5", "generator_Deconv2", "generator_Deconv2", 0.2f)
-		<< ConvolutionLayer("Generator_Conv4", "generator_Deconv2", "generator_pre_output", 1, 7, 1, 3, train, false);
+		<< ConvolutionLayer("Generator_Conv4", "generator_Deconv2", "generator_pre_output", 3, 7, 1, 3, train, false);
 	prototxt
 		<< "layer {" << "\n"
 		<< "\t" << "name: \"Generator_tanH_output\"" << "\n"
